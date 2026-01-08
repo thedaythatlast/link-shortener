@@ -7,7 +7,7 @@ This is a simple FastAPI link-shortener project.
    cd C:\{project_folder}
    ```
 
-2. Create a virtual environment:
+2. [Skip if done the first time] Create a virtual environment:
 
    ```bash
    python -m venv .venv
@@ -24,6 +24,13 @@ This is a simple FastAPI link-shortener project.
    ```bash
    fastapi dev main.py
    ```
+
+# Using the API:
+Once the server is running, use the address 
+```
+localhost:{your_host}/shorten?url={url_address_you_want_to_shorten}
+```
+You will receive the shortened link.
 
 ## TODO
 
