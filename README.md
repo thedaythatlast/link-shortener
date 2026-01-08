@@ -35,7 +35,6 @@ You will receive the shortened link.
 ## TODO
 
 * Integrate the project with a PostgreSQL database (using Docker)
-* Validity check for the URL
 
 ## Note
 
