@@ -2,11 +2,16 @@ from fastapi import FastAPI, Request
 import hashlib
 import base64
 import validators
+from fastapi.responses import RedirectResponse
+
 
 
 app = FastAPI()
 
 urls = {}
+
+
+#port = request.scope.get("server")[1]
 
 # HOW TO USE THE API:
 # Use the address localhost:{your_host}/shorten?url={url_address_you_want_to_shorten}
@@ -19,7 +24,7 @@ def is_valid_url(url: str) -> bool:
 
 @app.get("/shorten")
 def shorten(url, request: Request):
-    # check if the url starts with 'http://' or 'https://', add them otherwise:
+    # check if the url starts with 'http://' or 'https://', add 'https://' otherwise:
     url = url.strip()
     if not url.startswith(("http://", "https://")):
         url = "https://" + url
@@ -34,7 +39,6 @@ def shorten(url, request: Request):
 
     # getting the port of your own server
     port = request.scope.get("server")[1]
-
     return f"localhost:{port}/{urls[url]}"
 
 @app.get("/debug")
@@ -43,7 +47,14 @@ def show_database():
     return urls
 
 @app.get("/{url}")
-def redirect(url):
+def redirect(url, request: Request):
+    # getting the port of your own server
+    port = request.scope.get("server")[1]
+
+
+    # {key : value}
+    # key = the full URL
+    # value = the hashed URL
     for key, value in urls.items():
         if value == url:
-            return key
+            return RedirectResponse(key, status_code=302)

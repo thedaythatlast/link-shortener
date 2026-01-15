@@ -7,7 +7,7 @@ This is a simple FastAPI link-shortener project.
    cd C:\{project_folder}
    ```
 
-2. [Skip if done the first time] Create a virtual environment:
+2. Create a virtual environment:
 
    ```bash
    python -m venv .venv
@@ -19,7 +19,13 @@ This is a simple FastAPI link-shortener project.
    .\.venv\Scripts\activate
    ```
 
-4. Run the development server:
+4. Install the dependencies:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+5. Run the development server:
 
    ```bash
    fastapi dev main.py
@@ -39,3 +45,4 @@ You will receive the shortened link.
 ## Note
 
 * So far the project hasn't been integrated to the database => the docker-compose file is pretty much useless (don't use it)
+* The link shortener automatically adds "https://" to any link that doesn't contain "http://" or "https://" by default. This makes the link shortener not useable for sites that can't be accessed with "https://".
