@@ -1,4 +1,5 @@
-This is a simple FastAPI link-shortener project.
+This is a simple FastAPI link-shortener project. 
+Expiry policy for each link: 2 year.
 
 ## How to Use (with a virtual environment)
 
@@ -34,7 +35,7 @@ This is a simple FastAPI link-shortener project.
 # Using the API:
 Once the server is running, use the address 
 ```
-localhost:{your_host}/shorten?url={url_address_you_want_to_shorten}
+localhost:{your_port}/shorten?url={url_address_you_want_to_shorten}
 ```
 You will receive the shortened link.
 

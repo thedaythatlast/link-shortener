@@ -3,13 +3,20 @@ import hashlib
 import base64
 import validators
 from fastapi.responses import RedirectResponse
+from datetime import datetime, timedelta
+from dataclasses import dataclass
 
 
 
 app = FastAPI()
 
-urls = {}
+@dataclass
+class Record:
+    _url: str
+    _hash: str
+    _expire: str
 
+url_table: list[Record] = []
 
 #port = request.scope.get("server")[1]
 
@@ -33,18 +40,25 @@ def shorten(url, request: Request):
     if is_valid_url(url) == False:
         return "Error: Can't shorten an invalid URL."
 
-    # shortening urls through hashes
+    # Calculate expiration: current time + 730 days (2 years)
+    expire_date = datetime.now() + timedelta(days=730)
+
+    # shortening url_table through hashes
     hash_object = hashlib.sha256(url.encode())
-    urls[url] = hash_object.hexdigest()[:6]
+    url_table.append(Record(
+        url, 
+        hash_object.hexdigest()[:6], 
+        expire_date.strftime("%Y-%m-%d")))
+    #url_table[url] = hash_object.hexdigest()[:6]
 
     # getting the port of your own server
     port = request.scope.get("server")[1]
-    return f"localhost:{port}/{urls[url]}"
+    return f"localhost:{port}/{hash_object.hexdigest()[:6]}"
 
 @app.get("/debug")
 def show_database():
     # returns the stored data to browser
-    return urls
+    return url_table
 
 @app.get("/{url}")
 def redirect(url, request: Request):
@@ -55,6 +69,10 @@ def redirect(url, request: Request):
     # {key : value}
     # key = the full URL
     # value = the hashed URL
-    for key, value in urls.items():
-        if value == url:
-            return RedirectResponse(key, status_code=302)
+    for row in url_table:
+        if row._hash == url:
+            return RedirectResponse(row._url, status_code=302)
+
+@app.get("/")
+def home():
+    return "Use localhost:{your_port}/shorten?url={url_address_you_want_to_shorten} to shorten a link of your choice."
