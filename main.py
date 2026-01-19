@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 import hashlib
 import base64
 import validators
@@ -14,7 +14,7 @@ app = FastAPI()
 class Record:
     _url: str
     _hash: str
-    _expire: str
+    _date: str
 
 url_table: list[Record] = []
 
@@ -38,22 +38,18 @@ def shorten(url, request: Request):
 
     # verify if url is valid, return warning if otherwise
     if is_valid_url(url) == False:
-        return "Error: Can't shorten an invalid URL."
-
-    # Calculate expiration: current time + 730 days (2 years)
-    expire_date = datetime.now() + timedelta(days=730)
+        return {"error": "Error: Can't shorten an invalid URL."}
 
     # shortening url_table through hashes
     hash_object = hashlib.sha256(url.encode())
     url_table.append(Record(
         url, 
         hash_object.hexdigest()[:6], 
-        expire_date.strftime("%Y-%m-%d")))
-    #url_table[url] = hash_object.hexdigest()[:6]
+        datetime.now()))
 
     # getting the port of your own server
     port = request.scope.get("server")[1]
-    return f"localhost:{port}/{hash_object.hexdigest()[:6]}"
+    return {"shortened_link": f"localhost:{port}/{hash_object.hexdigest()[:6]}"}
 
 @app.get("/debug")
 def show_database():
@@ -70,9 +66,13 @@ def redirect(url, request: Request):
     # key = the full URL
     # value = the hashed URL
     for row in url_table:
-        if row._hash == url:
+        # first check: if there's a row containing the url
+        # second check: if more than 2 years have passed since the shortened link's generated date
+        if (row._hash == url) & (datetime.now() - row._date <= timedelta(days=730)):
             return RedirectResponse(row._url, status_code=302)
+        else:
+            raise HTTPException(status_code=404, detail="Shortened link doesn't exist, or has expired.")
 
 @app.get("/")
 def home():
-    return "Use localhost:{your_port}/shorten?url={url_address_you_want_to_shorten} to shorten a link of your choice."
+    return {"detail": "Use localhost:{your_port}/shorten?url={url_address_you_want_to_shorten} to shorten a link of your choice."}
