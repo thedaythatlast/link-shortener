@@ -44,6 +44,11 @@ localhost:{your_port}/shorten?url={url_address_you_want_to_shorten}
 ```
 You will receive the shortened link.
 
+Example using CURL:
+```bash
+curl "http://localhost:8000/shorten?url=https://example.com"
+```
+
 ## TODO
 
 * Integrate the project with a PostgreSQL database (using Docker)
